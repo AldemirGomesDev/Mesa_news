@@ -2,9 +2,10 @@ package com.aldemir.mesanews.ui.feed.domain
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
-
-@Entity(tableName = "New")
+//, indices = [Index(value = ["title"], unique = true) ]
+@Entity(tableName = "New", indices = [Index(value = ["title"], unique = true) ])
 data class New(
 
     @PrimaryKey(autoGenerate = true)

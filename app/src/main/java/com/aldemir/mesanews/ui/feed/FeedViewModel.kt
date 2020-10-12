@@ -27,8 +27,18 @@ class FeedViewModel(
     private val _totalPages = MutableLiveData<Int>()
     val totalPages: LiveData<Int> = _totalPages
 
+    private val _totalNews = MutableLiveData<Int>()
+    val totalNews: LiveData<Int> = _totalNews
+
+    private val _totalNewsHighLight = MutableLiveData<Int>()
+    val totalNewsHighLight: LiveData<Int> = _totalNewsHighLight
+
     private val _newsDatabase = MutableLiveData<List<New>>()
     var newsDatabase: LiveData<List<New>> = _newsDatabase
+
+    private val _newsHighLight = MutableLiveData<List<New>>()
+    var newsHighLight: LiveData<List<New>> = _newsHighLight
+
 
     private val _news = MutableLiveData<Resource<List<New>>>((Resource.loading(null)))
     var news: LiveData<Resource<List<New>>> = _news
@@ -42,6 +52,15 @@ class FeedViewModel(
             }catch (error: Exception) {
                 Log.e("facebookLogin: ", "ERROR ROOM => : ${error}")
             }
+    }
+
+    fun getNewsHighLight(highlight: Boolean) {
+        try {
+            _newsHighLight.value = newsRepository.getHighLight(highlight)
+            Log.d("DatePicker: ", "HIGHLIGHTS => : ${highlight}")
+        }catch (error: Exception) {
+            Log.e("DatePicker: ", "ERROR ROOM => : ${error}")
+        }
     }
 
     fun insertNew() {
@@ -64,42 +83,51 @@ class FeedViewModel(
         }
     }
 
-    fun getAllNews(lastPage: Int, perPage: Int) {
-        Log.d("facebookLogin: ", "getAllNews => lastPage: $lastPage")
+    fun getAllNews(lastPage: Int, perPage: Int, countNews: Int) {
+        Log.e("getAllNews: ", "getAllNews =============================> lastPage: $lastPage")
         viewModelScope.launch {
             val mNews: ArrayList<New> = arrayListOf()
             try {
                 val result: ResponseNew? = newsRepository.getAllNews(lastPage, perPage)
 
                 if (result != null) {
-                    for (new in result.data) {
-                        val mNew = New()
-                        mNew.author = new.author
-                        mNew.content = new.content
-                        mNew.description = new.description
-                        mNew.highlight = new.highlight
-                        mNew.image_url = new.image_url
-                        mNew.published_at = new.published_at
-                        mNew.title = new.title
-                        mNew.url = new.url
+                    Log.d("DatePicker: ", "total_items: ${result.pagination.total_items} => countNews: $countNews")
+                    if (result.pagination.total_items > countNews) {
 
-                        mNews.add(mNew)
+                        for (new in result.data) {
+                            val mNew = New()
+                            mNew.author = new.author
+                            mNew.content = new.content
+                            mNew.description = new.description
+                            mNew.highlight = new.highlight
+                            mNew.image_url = new.image_url
+                            mNew.published_at = new.published_at
+                            mNew.title = new.title
+                            mNew.url = new.url
+
+                            mNews.add(mNew)
+                        }
+                        saveTotalPages(result.pagination.total_pages)
+                        _news.value = (Resource.success(null))
+                        if (lastPage == result.pagination.total_pages) {
+                            saveTotalNews(result.pagination.total_items, "news")
+                        }else {
+                            saveLastPage(result.pagination.current_page)
+                        }
+                        try {
+                            newsRepository.insertNews(mNews)
+                        } catch (error: Exception) {
+                            Log.e("facebookLogin: ", "ERROR ROOM => : ${error}")
+                        }
                     }
-                    saveLastPage(result.pagination.current_page)
-                    saveTotalPages(result.pagination.total_pages)
-                    _news.value = (Resource.success(null))
                 }
+
 
             }catch (error: Exception){
                 Log.e("facebookLogin: ", "ERROR getAllNews  => : ${error}")
                 _news.value = (Resource.error("Verifique sua conexão e tente novamente", null))
             }
 
-            try {
-                newsRepository.insertNews(mNews)
-            }catch (error: Exception) {
-                Log.e("facebookLogin: ", "ERROR ROOM => : ${error}")
-            }
         }
     }
     fun getFavorites(isFavorite: Boolean) {
@@ -114,32 +142,44 @@ class FeedViewModel(
         }
     }
 
-    fun getAllNewsHighlights() {
+    fun getAllNewsHighlights(count: Int) {
         Log.d("workManager: ", "getAllNews =>")
+        val mNews: ArrayList<New> = arrayListOf()
         viewModelScope.launch {
             try {
                 val result: ResponseNewHighlights? = newsRepository.getAllNewsHighlights()
-                val mNews: ArrayList<New> = arrayListOf()
                 if (result != null) {
-                    for (new in result.data) {
-                        val mNew = New()
-                        mNew.author = new.author
-                        mNew.content = new.content
-                        mNew.description = new.description
-                        mNew.highlight = new.highlight
-                        mNew.image_url = new.image_url
-                        mNew.published_at = new.published_at
-                        mNew.title = new.title
-                        mNew.url = new.url
+                    if (result.data.size > count) {
+                        for (new in result.data) {
+                            val mNew = New()
+                            mNew.author = new.author
+                            mNew.content = new.content
+                            mNew.description = new.description
+                            mNew.highlight = new.highlight
+                            mNew.image_url = new.image_url
+                            mNew.published_at = new.published_at
+                            mNew.title = new.title
+                            mNew.url = new.url
 
-                        mNews.add(mNew)
+                            mNews.add(mNew)
+                        }
+                        _newsHighlights.value = (Resource.success(mNews))
                     }
-                    _newsHighlights.value = (Resource.success(mNews))
+                    saveTotalNews(result.data.size, "newsHighLights")
+                    Log.e("DatePicker: ", "News size => : ${result.data.size} / count => $count")
                 }
+
 
             }catch (error: Exception){
                 Log.e("facebookLogin: ", "ERROR => : ${error}")
                 _news.value = (Resource.error("Verifique sua conexão e tente novamente", null))
+            }
+            if (mNews.size > count) {
+                try {
+                    newsRepository.insertNews(mNews)
+                }catch (error: Exception) {
+                    Log.e("facebookLogin: ", "ERROR ROOM => : ${error}")
+                }
             }
         }
     }
@@ -160,6 +200,10 @@ class FeedViewModel(
         sessionManager.saveTotalPages(totalPages)
     }
 
+    private fun saveTotalNews(total: Int, tag: String) {
+        sessionManager.saveTotalNews(total, tag)
+    }
+
     fun getLastPage() {
         _lastPage.value = sessionManager.getLastPage()
     }
@@ -167,5 +211,14 @@ class FeedViewModel(
     fun getTotalPages() {
         Log.d("facebookLogin: ", "getTotalPages: ${sessionManager.getTotalPages()}")
         _totalPages.value = sessionManager.getTotalPages()
+    }
+
+    fun getTotalNews(tag: String) {
+        val totalNews = sessionManager.getTotalNews(tag)
+        if (tag == "news") {
+            _totalNews.value = totalNews
+        }else {
+            _totalNewsHighLight.value = totalNews
+        }
     }
 }

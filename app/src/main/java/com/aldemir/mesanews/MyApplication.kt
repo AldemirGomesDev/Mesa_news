@@ -17,6 +17,7 @@ class MyApplication: Application() {
                 feedModule,
                 registerModule,
                 mainModule,
+                filterModule,
                 networkModule,
                 databaseModule
             )

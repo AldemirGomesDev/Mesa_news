@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_horizontal.view.*
 import kotlinx.android.synthetic.main.item_news.view.*
 
-class FeedAdapterHorizontal(private val users: ArrayList<New>)
+class FeedAdapterHorizontal(private var users: List<New>)
     : RecyclerView.Adapter<FeedAdapterHorizontal.DataViewHolder>() {
 
     lateinit var mClickListener: ClickListener
@@ -62,8 +62,7 @@ class FeedAdapterHorizontal(private val users: ArrayList<New>)
         holder.bind(users[position])
 
     fun addData(list: List<New>) {
-        users.addAll(list)
-        Log.d("workManager: ", "list => : ${list}")
+        users = list
     }
 
 }

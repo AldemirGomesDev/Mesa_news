@@ -13,4 +13,6 @@ interface NewsRepository {
     fun updateNew(new: New)
     fun getNewsDatabase(): LiveData<List<New>>
     fun getFavorites(isFavorite: Boolean): LiveData<List<New>>
+    fun getHighLight(highlight: Boolean): List<New>
+    fun getNewsFilter(search: String, isFavorite: Boolean): List<New>
 }

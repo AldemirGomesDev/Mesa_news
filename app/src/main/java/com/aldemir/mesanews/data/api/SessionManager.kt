@@ -76,4 +76,14 @@ class SessionManager (context: Context?) {
     fun getTotalPages(): Int {
         return prefs.getInt(TOTAL_PAGES, 0)
     }
+
+    fun saveTotalNews(totalNews: Int, tag: String) {
+        val editor = prefs.edit()
+        editor.putInt(tag, totalNews)
+        editor.apply()
+    }
+
+    fun getTotalNews(tag: String): Int {
+        return prefs.getInt(tag, 0)
+    }
 }

@@ -22,10 +22,16 @@ interface NewDao {
     @Query("SELECT * FROM New WHERE id = :id")
     fun get(id: Int): New
 
-    @Query("SELECT * FROM New")
-    fun getAll(): LiveData<List<New>>
+    @Query("SELECT * FROM New WHERE highlight = :highlight")
+    fun getAll(highlight: Boolean): LiveData<List<New>>
 
     @Query("SELECT * FROM New WHERE is_favorite = :isFavorite")
     fun getFavorites(isFavorite: Boolean): LiveData<List<New>>
+
+    @Query("SELECT * FROM New WHERE highlight = :highlight")
+    fun getHighLight(highlight: Boolean): List<New>
+
+    @Query("SELECT * FROM New WHERE title LIKE :search AND is_favorite =:isFavorite")
+    fun getNewsFilter(search: String, isFavorite: Boolean): List<New>
 
 }

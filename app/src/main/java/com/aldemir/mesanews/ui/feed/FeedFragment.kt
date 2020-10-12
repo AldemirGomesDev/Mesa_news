@@ -21,6 +21,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.coroutines.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.concurrent.fixedRateTimer
 
 
 class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizontal.ClickListener {
@@ -28,11 +31,14 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
     private var mLastPage: Int = 1
     private var mPerPage: Int = 10
     private var mTotalPages: Int = 1
+    private var mTotalNews: Int = 0
+    private var mTotalNewsHighlights: Int = 0
+    private lateinit var myFixedRateTimer: Timer
     private lateinit var adapter: FeedAdapter
     private lateinit var adapterHorizontal: FeedAdapterHorizontal
     private lateinit var mContext: Context
     private val mNews: ArrayList<New> = arrayListOf()
-    private val mNewsCarousel: ArrayList<New> = arrayListOf()
+    private var mNewsCarousel: List<New> = arrayListOf()
     private val feedViewModel: FeedViewModel by viewModel()
 
     override fun onCreateView(
@@ -43,10 +49,12 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
 
         val root = inflater.inflate(R.layout.fragment_feed, container, false)
 
+        feedViewModel.getTotalNews("news")
+        feedViewModel.getTotalNews("newsHighLights")
         feedViewModel.getLastPage()
         feedViewModel.getTotalPages()
-        feedViewModel.getAllNewsHighlights()
         feedViewModel.getNewsDatabase()
+        feedViewModel.getNewsHighLight(true)
 
         WorkFetchData(mContext, feedViewModel).fetchData()
 
@@ -79,26 +87,43 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
 
     }
 
+    private fun updateNews() {
+        myFixedRateTimer = fixedRateTimer("timer",false,30000,30000){
+            requireActivity().runOnUiThread {
+                Log.d("getAllNews: ", "Timer Rate in fragment")
+                feedViewModel.getLastPage()
+                feedViewModel.getTotalPages()
+                feedViewModel.getNewsDatabase()
+                feedViewModel.getNewsHighLight(true)
+            }
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        WorkFetchData(mContext, feedViewModel).stopFetch()
+    override fun onResume() {
+        super.onResume()
+        updateNews()
+        Log.d("DatePicker: ", "Timer Rate onResume")
     }
 
+    override fun onStop() {
+        super.onStop()
+        myFixedRateTimer.cancel()
+        Log.d("DatePicker: ", "Timer Rate onStop")
+    }
 
     private fun setupObservers() {
         feedViewModel.newsHighlights.observe(viewLifecycleOwner, Observer {
-            Log.d("workManager: ", "Result => : ${it.data}")
-            Log.d("workManager: ", "status => : ${it.status}")
             when (it.status) {
                 Status.SUCCESS -> {
-
-                    it.data?.let { news -> renderListHorizontal(news) }
+                    if (it.data!!.size >= mTotalNewsHighlights) {
+                        feedViewModel.getNewsHighLight(true)
+                    }
                 }
                 Status.LOADING -> {
 
@@ -132,23 +157,40 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
             }
         })
 
+        feedViewModel.totalNewsHighLight.observe(viewLifecycleOwner, Observer { totalNews ->
+            mTotalNewsHighlights = totalNews
+        })
+
+        feedViewModel.totalNews.observe(viewLifecycleOwner, Observer { totalNews ->
+            mTotalNews = totalNews
+        })
+
         feedViewModel.lastPage.observe(viewLifecycleOwner, Observer { lastPage ->
             mLastPage = lastPage
         })
 
         feedViewModel.totalPages.observe(viewLifecycleOwner, Observer { totalPages ->
             mTotalPages = totalPages
-
+            Log.d("getAllNews: ", "getNewsDatabase ROOM => mLastPage: $mLastPage | mTotalPages: $mTotalPages")
             if (mLastPage <= mTotalPages) {
-                feedViewModel.getAllNews(mLastPage, mPerPage)
+                feedViewModel.getAllNews(mLastPage, mPerPage, mTotalNews)
             }
         })
 
         feedViewModel.newsDatabase.observe(viewLifecycleOwner, Observer { news ->
             Log.d("DatePicker: ", "getNewsDatabase ROOM => news.size: ${news.size}")
             Log.d("DatePicker: ", "getNewsDatabase Page: $mLastPage/$mTotalPages")
+            feedViewModel.getTotalNews("news")
             showNews()
             renderList(news)
+        })
+
+        feedViewModel.newsHighLight.observe(viewLifecycleOwner, Observer { news ->
+            Log.d("caroussel_news: ", "list => : ${news.size}")
+            feedViewModel.getTotalNews("newsHighLights")
+            showNews()
+            renderListHorizontal(news)
+            feedViewModel.getAllNewsHighlights(mTotalNewsHighlights)
         })
     }
 
@@ -192,7 +234,7 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
     }
 
     private fun renderListHorizontal(list: List<New>) {
-        mNewsCarousel.addAll(list)
+        mNewsCarousel = list
         adapterHorizontal.addData(list)
         adapterHorizontal.notifyDataSetChanged()
     }

@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -27,6 +28,8 @@ import kotlinx.android.synthetic.main.nav_header_main.view.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 
 class MainActivity : AppCompatActivity() {
@@ -69,11 +72,6 @@ class MainActivity : AppCompatActivity() {
         userEmailHeader = headerView.user_email_drawer
         observers()
         mainViewModel.getUserNameSharedPreference()
-
-    }
-
-    fun facebook() {
-
     }
 
     private fun observers() {

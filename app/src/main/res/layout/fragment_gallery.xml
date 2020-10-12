@@ -4,133 +4,150 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/container_filter"
     tools:context=".ui.filter.FilterFragment">
 
-    <CheckBox
-        android:id="@+id/check_box_favorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Favoritas"
+    <AutoCompleteTextView
+        android:id="@+id/autoComplete_news"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="8dp"
+        android:hint="Buscar por título"
+        android:inputType="textAutoComplete"
+        android:drawableStart="@drawable/ic_baseline_search_24"
+        android:drawablePadding="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_view1"
-        android:padding="2dp"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="4dp"
-        android:layout_marginTop="8dp"
+    <LinearLayout
+        android:id="@+id/ll_filters"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/check_box_favorite">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/autoComplete_news"
+        >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/colorBackground"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/check_box_favorite">
+        <CheckBox
+            android:id="@+id/check_box_favorite"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_weight="1"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="8dp"
+            android:text="Favoritas"
+            />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text="Data Inicial:"
-                />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_view1"
+            android:padding="2dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/date_initial"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
-                android:textSize="16sp"
-                android:text="__/__/____"
-                />
-
-            <ImageView
-                android:id="@+id/image_date_initial"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_baseline_date_24"
-                android:scaleType="centerCrop"
-                android:padding="8dp"
-                />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:background="@color/colorBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/check_box_favorite">
 
-    </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/date_initial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical"
+                    android:textSize="14sp"
+                    android:text="Data Inicial"
+                    />
 
-    <androidx.cardview.widget.CardView
-        android:padding="2dp"
-        app:cardElevation="4dp"
-        app:cardCornerRadius="4dp"
+                <ImageView
+                    android:id="@+id/image_date_initial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_baseline_date_24"
+                    android:scaleType="centerCrop"
+                    android:padding="4dp"
+                    />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:padding="2dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/colorBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/card_view1">
+
+                <TextView
+                    android:id="@+id/date_final"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical"
+                    android:textSize="14sp"
+                    android:text="Data Final"
+                    />
+
+                <ImageView
+                    android:id="@+id/image_date_final"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_baseline_date_24"
+                    android:scaleType="centerCrop"
+                    android:padding="4dp"
+                    />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_news_filters"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        tools:visibility="visible"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/ll_filters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_view1">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/colorBackground"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/card_view1">
-
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text="Data Final:"
-                />
-
-            <TextView
-                android:id="@+id/date_final"
-                android:layout_width="120dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
-                android:textSize="16sp"
-                android:text="__/__/____"
-                />
-
-            <ImageView
-                android:id="@+id/image_date_final"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_baseline_date_24"
-                android:scaleType="centerCrop"
-                android:padding="8dp"
-                />
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/clear_filters"
+        tools:listitem="@layout/item_news"
+        />
 
     <Button
-        android:id="@+id/outlinedButton"
+        android:id="@+id/clear_filters"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Limpar"
+        android:visibility="visible"
         android:layout_margin="8dp"
         style="?attr/materialButtonOutlinedStyle"
         app:layout_constraintStart_toStartOf="parent"
@@ -143,8 +160,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Aplicar"
+        android:visibility="visible"
         android:layout_margin="8dp"
-        app:layout_constraintStart_toEndOf="@+id/outlinedButton"
+        app:layout_constraintStart_toEndOf="@+id/clear_filters"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />

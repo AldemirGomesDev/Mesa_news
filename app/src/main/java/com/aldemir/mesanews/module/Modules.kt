@@ -14,6 +14,7 @@ import com.aldemir.mesanews.data.repository.news.NewsRepositoryImpl
 import com.aldemir.mesanews.data.repository.register.RegisterRepository
 import com.aldemir.mesanews.data.repository.register.RegisterRepositoryImpl
 import com.aldemir.mesanews.ui.feed.FeedViewModel
+import com.aldemir.mesanews.ui.filter.FilterViewModel
 import com.aldemir.mesanews.ui.login.LoginViewModel
 import com.aldemir.mesanews.ui.main.MainViewModel
 import com.aldemir.mesanews.ui.register.RegisterViewModel
@@ -57,6 +58,15 @@ val feedModule = module {
 
     viewModel {
         FeedViewModel(
+            newsRepository =  get(),
+            sessionManager = get()
+        )
+    }
+}
+
+val filterModule = module {
+    viewModel {
+        FilterViewModel(
             newsRepository =  get(),
             sessionManager = get()
         )
