@@ -1,13 +1,13 @@
 package com.aldemir.mesanews.ui.feed.domain
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
+import com.aldemir.mesanews.util.DateTypeConverter
+import java.util.Date
+
+
 //, indices = [Index(value = ["title"], unique = true) ]
 @Entity(tableName = "New", indices = [Index(value = ["title"], unique = true) ])
 data class New(
-
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     var id: Int = 0,
@@ -20,7 +20,7 @@ data class New(
     @ColumnInfo(name = "author")
     var author: String? = "",
     @ColumnInfo(name = "published_at")
-    var published_at: String? = "",
+    var published_at: Date? = null,
     @ColumnInfo(name = "highlight")
     var highlight: Boolean? = false,
     @ColumnInfo(name = "url")

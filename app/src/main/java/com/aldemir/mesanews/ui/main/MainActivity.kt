@@ -60,8 +60,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home,
-                R.id.nav_gallery,
-                R.id.nav_slideshow
+                R.id.nav_gallery
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -109,7 +108,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logOut() {
-        mainViewModel.logout(mUserEmail!!)
+        if(mUserEmail != null) {
+            mainViewModel.logout(mUserEmail!!)
+        }
         LoginManager.getInstance().logOut()
         finish()
         val intent = Intent(this, LoginActivity::class.java)

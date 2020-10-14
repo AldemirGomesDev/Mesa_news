@@ -68,7 +68,7 @@
                     android:layout_marginStart="8dp"
                     android:gravity="center_vertical"
                     android:textSize="14sp"
-                    android:text="Data Inicial"
+                    android:text="@string/text_data_inicial"
                     />
 
                 <ImageView
@@ -109,7 +109,7 @@
                     android:layout_marginStart="8dp"
                     android:gravity="center_vertical"
                     android:textSize="14sp"
-                    android:text="Data Final"
+                    android:text="@string/text_data_final"
                     />
 
                 <ImageView
@@ -146,7 +146,7 @@
         android:id="@+id/clear_filters"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Limpar"
+        android:text="@string/text_button_clear"
         android:visibility="visible"
         android:layout_margin="8dp"
         style="?attr/materialButtonOutlinedStyle"
@@ -159,7 +159,7 @@
         android:id="@+id/button_apply"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Aplicar"
+        android:text="@string/text_button_aplicar"
         android:visibility="visible"
         android:layout_margin="8dp"
         app:layout_constraintStart_toEndOf="@+id/clear_filters"

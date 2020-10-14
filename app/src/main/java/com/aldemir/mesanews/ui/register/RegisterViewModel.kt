@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.aldemir.mesanews.R
 import com.aldemir.mesanews.Resource
 import com.aldemir.mesanews.data.api.SessionManager
-import com.aldemir.mesanews.data.model.RequestRegister
-import com.aldemir.mesanews.data.model.ResponseLogin
+import com.aldemir.mesanews.data.api.model.RequestRegister
+import com.aldemir.mesanews.data.api.model.ResponseLogin
 import com.aldemir.mesanews.data.repository.register.RegisterRepository
 import com.aldemir.mesanews.ui.register.domain.User
 import kotlinx.coroutines.launch

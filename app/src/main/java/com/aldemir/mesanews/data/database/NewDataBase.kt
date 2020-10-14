@@ -6,9 +6,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.aldemir.mesanews.ui.register.domain.User
+import com.aldemir.mesanews.util.DateTypeConverter
 
 @Database(entities = arrayOf(New::class, User::class), version = 1)
+@TypeConverters(DateTypeConverter::class)
 abstract class NewDataBase : RoomDatabase() {
 
     abstract fun newDao(): NewDao

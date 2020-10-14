@@ -1,6 +1,5 @@
 package com.aldemir.mesanews.ui.login
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,14 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.aldemir.mesanews.R
 import com.aldemir.mesanews.Resource
 import com.aldemir.mesanews.data.api.SessionManager
-import com.aldemir.mesanews.data.model.RequestLogin
-import com.aldemir.mesanews.data.model.ResponseLogin
+import com.aldemir.mesanews.data.api.model.RequestLogin
+import com.aldemir.mesanews.data.api.model.ResponseLogin
 import com.aldemir.mesanews.data.repository.login.LoginRepositoryImpl
 import com.aldemir.mesanews.ui.register.domain.User
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -29,6 +24,9 @@ class LoginViewModel(
     private val _user = MutableLiveData<User>()
     var user: LiveData<User> = _user
 
+    private val _userCreated= MutableLiveData<Boolean>()
+    var userCreated: LiveData<Boolean> = _userCreated
+
     private val _token = MutableLiveData<Resource<ResponseLogin>>()
     var mToken: LiveData<Resource<ResponseLogin>> = _token
 
@@ -36,14 +34,12 @@ class LoginViewModel(
     val loginForm: LiveData<LoginFormState> = _loginForm
 
     fun signIn(username: String, passwords: String) {
-        // can be launched in a separate asynchronous job
         val requestLogin = RequestLogin(username, passwords)
 
         viewModelScope.launch {
             try {
                 val result = loginRepository.signIn(requestLogin)
 
-                Log.d("facebookLogin: ", "token => : ${result.token}")
                 _token.value = (Resource.success(result))
                 updateUser(username)
 
@@ -89,7 +85,10 @@ class LoginViewModel(
         val userName: String? = sessionManager.getUserName()
 
         if (userName != null) {
+            _userCreated.value = true
             isLoggedUser(userName)
+        }else {
+            _userCreated.value = false
         }
     }
 

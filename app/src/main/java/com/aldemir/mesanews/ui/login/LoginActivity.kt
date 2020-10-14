@@ -8,11 +8,9 @@ import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import com.aldemir.mesanews.R
 import com.aldemir.mesanews.Status
@@ -22,6 +20,7 @@ import com.facebook.*
 import com.facebook.AccessToken
 import com.facebook.login.LoginManager
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.security.MessageDigest
@@ -35,7 +34,6 @@ class LoginActivity : AppCompatActivity() {
     private val loginViewModel: LoginViewModel by viewModel  {
         parametersOf(this)
     }
-
     private lateinit var loading: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,34 +47,33 @@ class LoginActivity : AppCompatActivity() {
         getHash()
         observers()
         setupUi()
-
-        val username = findViewById<EditText>(R.id.username)
-        val password = findViewById<EditText>(R.id.password)
-        val login = findViewById<Button>(R.id.login)
-        loading = findViewById<ProgressBar>(R.id.loading)
-
-            username.afterTextChanged {
-                loginViewModel.userNameDataChanged(
-                    username.text.toString()
-                )
-            }
-            password.apply {
-                afterTextChanged {
-                    loginViewModel.passwordDataChanged(
-                        password.text.toString()
-                    )
-                }
-            login.setOnClickListener {
-                loading.visibility = View.VISIBLE
-                login.isEnabled = false
-                loginViewModel.signIn(username.text.toString(), password.text.toString())
-            }
-        }
     }
 
     private fun setupUi() {
         button_screen_register.setOnClickListener {
             startRegisterActivity()
+        }
+        val username = findViewById<EditText>(R.id.username)
+        val password = findViewById<EditText>(R.id.password)
+        val login = findViewById<Button>(R.id.login)
+        loading = findViewById<ProgressBar>(R.id.loading)
+
+        username.afterTextChanged {
+            loginViewModel.userNameDataChanged(
+                username.text.toString()
+            )
+        }
+        password.apply {
+            afterTextChanged {
+                loginViewModel.passwordDataChanged(
+                    password.text.toString()
+                )
+            }
+            login.setOnClickListener {
+                loading.visibility = View.VISIBLE
+                login.isEnabled = false
+                loginViewModel.signIn(username.text.toString(), password.text.toString())
+            }
         }
     }
 
@@ -92,9 +89,6 @@ class LoginActivity : AppCompatActivity() {
     ) {
         callbackManager.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("facebookLogin", "requestCode=> $requestCode")
-        Log.d("facebookLogin", "resultCode=> $resultCode")
-        Log.d("facebookLogin", "data=> ${data.toString()}")
     }
 
     private fun getHash() {
@@ -116,7 +110,6 @@ class LoginActivity : AppCompatActivity() {
     private fun verifyIsLoggedFacebook() {
         val accessToken: AccessToken? = AccessToken.getCurrentAccessToken()
         val isLoggedIn = accessToken != null && !accessToken.isExpired
-        Log.d("facebookLogin", "isLogged => $isLoggedIn")
 
         if (isLoggedIn) {
             startMainActivity()
@@ -198,9 +191,15 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        loginViewModel.mToken.observe(this@LoginActivity, Observer {token->
-            Log.d("facebookLogin: ", "token ==>: ${token}")
+        loginViewModel.userCreated.observe(this@LoginActivity, Observer {userCreated ->
+            if (userCreated) {
+                login_button.isEnabled = userCreated
+            } else {
+                login_button.isEnabled = userCreated
+            }
+        })
 
+        loginViewModel.mToken.observe(this@LoginActivity, Observer {token->
             when (token.status) {
                 Status.SUCCESS -> {
                     loading.visibility = View.GONE

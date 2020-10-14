@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.aldemir.mesanews.R
 import com.aldemir.mesanews.ui.feed.domain.New
+import com.aldemir.mesanews.ui.filter.FilterAdapter
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.item_news.view.*
 
@@ -17,6 +18,7 @@ class FeedAdapter(private var users: List<New>, private var context: Context)
 
     lateinit var mClickListener: ClickListener
     lateinit var mClickListenerFavorite: ClickListener
+    lateinit var mClickListenerShared: ClickListener
 
     fun setOnItemClickListener(aClickListener: ClickListener) {
         mClickListener = aClickListener
@@ -26,9 +28,14 @@ class FeedAdapter(private var users: List<New>, private var context: Context)
         mClickListenerFavorite = aClickListener
     }
 
+    fun setOnItemClickListenerShared(aClickListener: ClickListener) {
+        mClickListenerShared = aClickListener
+    }
+
     interface ClickListener {
         fun onClick(position: Int, aView: View)
         fun onClickFavorite(position: Int, aView: View)
+        fun onClickShared(position: Int, aView: View)
     }
    inner class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
     View.OnClickListener{
@@ -44,8 +51,8 @@ class FeedAdapter(private var users: List<New>, private var context: Context)
                 itemView.text_favorite.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 itemView.text_favorite.text = "Desfavoritar"
             }else {
-                itemView.image_favorite.setColorFilter(ContextCompat.getColor(context, R.color.colorGray))
-                itemView.text_favorite.setTextColor(ContextCompat.getColor(context, R.color.colorGray))
+                itemView.image_favorite.setColorFilter(ContextCompat.getColor(context, R.color.colorAccent))
+                itemView.text_favorite.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
                 itemView.text_favorite.text = "Favoritar"
             }
         }
@@ -58,6 +65,9 @@ class FeedAdapter(private var users: List<New>, private var context: Context)
             itemView.setOnClickListener(this)
             itemView.button_favorite.setOnClickListener {
                 mClickListenerFavorite.onClickFavorite(adapterPosition, it)
+            }
+            itemView.button_shared.setOnClickListener {
+                mClickListenerShared.onClickShared(adapterPosition, it)
             }
         }
     }

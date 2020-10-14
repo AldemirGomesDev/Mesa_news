@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.aldemir.mesanews.data.api.AuthInterceptor
 import com.aldemir.mesanews.data.api.SessionManager
-import com.aldemir.mesanews.data.api.login.ApiService
+import com.aldemir.mesanews.data.api.ApiService
 import com.aldemir.mesanews.data.database.NewDao
 import com.aldemir.mesanews.data.database.NewDataBase
 import com.aldemir.mesanews.data.database.UserDao
@@ -25,6 +25,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 val databaseModule = module {
     fun provideDatabase(application: Application) : NewDataBase {
@@ -114,7 +115,7 @@ val networkModule = module {
         )
     }
     factory {
-        provideForecastApi(
+        provideApiService(
             retrofit = get()
         )
     }
@@ -147,8 +148,11 @@ fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
 }
 
 fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
-    return OkHttpClient().newBuilder().addInterceptor(authInterceptor).build()
+    return OkHttpClient().newBuilder()
+        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(authInterceptor).build()
 }
 
-fun provideForecastApi(retrofit: Retrofit): ApiService =
+fun provideApiService(retrofit: Retrofit): ApiService =
     retrofit.create(ApiService::class.java)

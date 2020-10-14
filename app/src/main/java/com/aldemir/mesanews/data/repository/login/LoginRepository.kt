@@ -1,7 +1,7 @@
 package com.aldemir.mesanews.data.repository.login
 
-import com.aldemir.mesanews.data.model.RequestLogin
-import com.aldemir.mesanews.data.model.ResponseLogin
+import com.aldemir.mesanews.data.api.model.RequestLogin
+import com.aldemir.mesanews.data.api.model.ResponseLogin
 import com.aldemir.mesanews.ui.register.domain.User
 
 interface LoginRepository {

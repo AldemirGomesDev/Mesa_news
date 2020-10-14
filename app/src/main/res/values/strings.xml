@@ -12,8 +12,8 @@
     <string name="menu_slideshow">Slideshow</string>
 
     //facebook
-    <string name="facebook_app_id">1251049358579079</string>
-    <string name="fb_login_protocol_scheme">fb1251049358579079</string>
+    <string name="facebook_app_id">app_id</string>
+    <string name="fb_login_protocol_scheme">login_protocol_scheme</string>
 
     <string name="title_activity_login">Entrar</string>
     <string name="prompt_name">Nome</string>
@@ -46,6 +46,10 @@
     <string name="alert_button_cancel">Não</string>
     <string name="alert_button_confirm">Sim</string>
     <string name="text_sair">Sair</string>
+    <string name="text_data_inicial">Data Inicial</string>
+    <string name="text_data_final">Data Final</string>
+    <string name="text_button_aplicar">Aplicar</string>
+    <string name="text_button_clear">Limpar</string>
 
 
 </resources>

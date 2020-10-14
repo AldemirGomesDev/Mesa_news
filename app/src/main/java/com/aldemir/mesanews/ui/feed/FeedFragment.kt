@@ -1,8 +1,9 @@
 package com.aldemir.mesanews.ui.feed
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +17,7 @@ import com.aldemir.mesanews.R
 import com.aldemir.mesanews.Status
 import com.aldemir.mesanews.ui.feed.domain.New
 import com.aldemir.mesanews.ui.web_detail_new.DetailNewActivity
-import com.aldemir.mesanews.workbackground.WorkFetchData
-import com.google.android.material.snackbar.Snackbar
+import com.aldemir.mesanews.util.Constants
 import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.coroutines.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -49,48 +49,31 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
 
         val root = inflater.inflate(R.layout.fragment_feed, container, false)
 
-        feedViewModel.getTotalNews("news")
-        feedViewModel.getTotalNews("newsHighLights")
+        feedViewModel.getTotalNews(Constants.NEW)
+        feedViewModel.getTotalNews(Constants.NEW_HIGH_LIGHT)
         feedViewModel.getLastPage()
         feedViewModel.getTotalPages()
         feedViewModel.getNewsDatabase()
         feedViewModel.getNewsHighLight(true)
-
-        WorkFetchData(mContext, feedViewModel).fetchData()
-
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (arguments!=null) {
-            Log.d("DatePicker", "${arguments?.getString("date_initial")}")
-            Log.d("DatePicker", "${arguments?.getString("date_final")}")
-            Log.d("DatePicker", "${arguments?.getBoolean("favorite")}")
-            val isFavorite = arguments?.getBoolean("favorite")
-            feedViewModel.getFavorites(isFavorite!!)
-        }
-
         setupUI()
         setupObservers()
         showLoading()
-
-        val fab = fab_feed
-        fab.setOnClickListener { view ->
-            feedViewModel.insertNew()
-
-            Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
-        }
-
     }
 
     private fun updateNews() {
-        myFixedRateTimer = fixedRateTimer("timer",false,30000,30000){
+        myFixedRateTimer = fixedRateTimer(
+            Constants.FIXED_RATE_TIMER,
+            false,
+            Constants.INITIAL_DELAY,
+            Constants.PERIOD_DELAY
+        ) {
             requireActivity().runOnUiThread {
-                Log.d("getAllNews: ", "Timer Rate in fragment")
                 feedViewModel.getLastPage()
                 feedViewModel.getTotalPages()
                 feedViewModel.getNewsDatabase()
@@ -102,19 +85,16 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
-
     }
 
     override fun onResume() {
         super.onResume()
         updateNews()
-        Log.d("DatePicker: ", "Timer Rate onResume")
     }
 
     override fun onStop() {
         super.onStop()
         myFixedRateTimer.cancel()
-        Log.d("DatePicker: ", "Timer Rate onStop")
     }
 
     private fun setupObservers() {
@@ -129,17 +109,13 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
 
                 }
                 Status.ERROR -> {
-                    //Handle Error
+                    showNews()
                     Toast.makeText(activity, "${it.message}", Toast.LENGTH_LONG).show()
-
-
                 }
             }
         })
 
         feedViewModel.news.observe(viewLifecycleOwner, Observer {
-            Log.d("workManager: ", "Result => : ${it.data}")
-            Log.d("workManager: ", "status => : ${it.status}")
             when (it.status) {
                 Status.SUCCESS -> {
                     showNews()
@@ -152,7 +128,6 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
                 Status.ERROR -> {
                     Toast.makeText(activity, "${it.message}", Toast.LENGTH_LONG).show()
                     showNews()
-
                 }
             }
         })
@@ -171,23 +146,19 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
 
         feedViewModel.totalPages.observe(viewLifecycleOwner, Observer { totalPages ->
             mTotalPages = totalPages
-            Log.d("getAllNews: ", "getNewsDatabase ROOM => mLastPage: $mLastPage | mTotalPages: $mTotalPages")
             if (mLastPage <= mTotalPages) {
                 feedViewModel.getAllNews(mLastPage, mPerPage, mTotalNews)
             }
         })
 
         feedViewModel.newsDatabase.observe(viewLifecycleOwner, Observer { news ->
-            Log.d("DatePicker: ", "getNewsDatabase ROOM => news.size: ${news.size}")
-            Log.d("DatePicker: ", "getNewsDatabase Page: $mLastPage/$mTotalPages")
-            feedViewModel.getTotalNews("news")
+            feedViewModel.getTotalNews(Constants.NEW)
             showNews()
             renderList(news)
         })
 
         feedViewModel.newsHighLight.observe(viewLifecycleOwner, Observer { news ->
-            Log.d("caroussel_news: ", "list => : ${news.size}")
-            feedViewModel.getTotalNews("newsHighLights")
+            feedViewModel.getTotalNews(Constants.NEW_HIGH_LIGHT)
             showNews()
             renderListHorizontal(news)
             feedViewModel.getAllNewsHighlights(mTotalNewsHighlights)
@@ -210,9 +181,9 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
         )
         recyclerView_news.adapter = adapter
         endlessScrollingSearch(layoutManager)
-
         adapter.setOnItemClickListener(this)
         adapter.setOnItemClickListenerFavorite(this)
+        adapter.setOnItemClickListenerShared(this)
 
         //==========recyclerview horizontal=================
 
@@ -271,11 +242,9 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
                 val totalItems = layoutManager.itemCount
 
                 if (currentItems + scrollOutItems >= totalItems) {
-                    Log.d("facebookLogin", "Chegou no ultimo 1.")
                     searchJob?.cancel()
                     searchJob = coroutineScope.launch {
                         delay(debouncePeriod)
-                        Log.w("facebookLogin", "Chegou no ultimo lastPage: $mLastPage")
                     }
                 }//fim do if
             }
@@ -283,7 +252,6 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
     }
 
     override fun onClick(position: Int, aView: View) {
-        Log.d("facebookLogin", "Item $position clicado => url: ${mNews[position].title}")
         val intent = DetailNewActivity.newIntent(mContext, mNews[position].url!!)
         startActivity(intent)
     }
@@ -297,13 +265,37 @@ class FeedFragment : Fragment(), FeedAdapter.ClickListener, FeedAdapterHorizonta
         }
         adapter.addData(mNews)
         adapter.notifyDataSetChanged()
-        Log.d("DatePicker: ", "is_favorite => : ${mNews[position].is_favorite}")
 
     }
 
+    override fun onClickShared(position: Int, aView: View) {
+        val shareTask = mNews[position].url!!
+        val dialog =
+            AlertDialog.Builder(mContext).setTitle("Info").setMessage("Você deseja compartilhar?")
+                .setPositiveButton("Sim") { dialog, _ ->
+                    setShareIntent(shareTask(shareTask))
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Não") { dialog, _ ->
+                    dialog.dismiss()
+                }
+        dialog.show()
+    }
+
     override fun onClickCarousel(position: Int, aView: View) {
-        Log.d("facebookLogin", "Item $position clicado => url: ${mNews[position].title}")
-        val intent = DetailNewActivity.newIntent(mContext, mNews[position].url!!)
+        val intent = DetailNewActivity.newIntent(mContext, mNewsCarousel[position].url!!)
         startActivity(intent)
+    }
+
+    private fun setShareIntent(shareBody: String) {
+        val sharingIntent = Intent(Intent.ACTION_SEND)
+        sharingIntent.type = "text/plain"
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
+        startActivity(Intent.createChooser(sharingIntent, "Visualizar notícia"))
+    }
+
+    private fun shareTask(str: String): String {
+        val resp = "Visualizar essa notícia:\n" + str + ""
+        return resp
     }
 }

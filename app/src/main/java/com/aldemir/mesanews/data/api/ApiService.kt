@@ -1,6 +1,8 @@
-package com.aldemir.mesanews.data.api.login
+package com.aldemir.mesanews.data.api
 
-import com.aldemir.mesanews.data.model.*
+import com.aldemir.mesanews.data.api.model.*
+import com.aldemir.mesanews.ui.register.domain.Post
+import io.reactivex.Single
 import retrofit2.http.*
 
 interface ApiService {
@@ -24,4 +26,7 @@ interface ApiService {
 
     @GET("/v1/client/news/highlights")
     suspend fun getAllNewsHighlights(): ResponseNewHighlights
+
+    @GET("posts")
+    fun getPosts(): Single<List<Post>>
 }

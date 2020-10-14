@@ -1,4 +1,4 @@
-package com.aldemir.mesanews.data.model
+package com.aldemir.mesanews.data.api.model
 
 data class ResponseNew (
     var pagination: Pagination,

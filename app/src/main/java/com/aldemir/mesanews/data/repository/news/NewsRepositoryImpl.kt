@@ -1,11 +1,9 @@
 package com.aldemir.mesanews.data.repository.news
 
 import androidx.lifecycle.LiveData
-import com.aldemir.mesanews.data.api.login.ApiService
+import com.aldemir.mesanews.data.api.ApiService
 import com.aldemir.mesanews.data.database.NewDao
 import com.aldemir.mesanews.ui.feed.domain.New
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 class NewsRepositoryImpl(private val newApiService: ApiService, private val newDao: NewDao):
@@ -39,10 +37,10 @@ class NewsRepositoryImpl(private val newApiService: ApiService, private val newD
         return newDao.getHighLight(highlight)
     }
 
-    override fun getNewsFilter(search: String, isFavorite: Boolean): List<New> {
-        return newDao.getNewsFilter(
-            "%" + search.toUpperCase(Locale.getDefault()) + "%", isFavorite
-        )
+    override fun getNewsFilter(search: String, isFavorite: Boolean, inputDate: Date, outputDate: Date): List<New> {
+        return newDao.getNewsFilterDates("%" +
+                search.toUpperCase(Locale.getDefault()) +
+                "%", isFavorite, inputDate, outputDate)
     }
 
 }

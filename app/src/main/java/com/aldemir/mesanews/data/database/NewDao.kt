@@ -3,6 +3,7 @@ package com.aldemir.mesanews.data.database
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.aldemir.mesanews.ui.feed.domain.New
+import java.util.*
 
 @Dao
 interface NewDao {
@@ -33,5 +34,8 @@ interface NewDao {
 
     @Query("SELECT * FROM New WHERE title LIKE :search AND is_favorite =:isFavorite")
     fun getNewsFilter(search: String, isFavorite: Boolean): List<New>
+
+    @Query("SELECT * FROM New WHERE title LIKE :search AND is_favorite =:isFavorite AND published_at BETWEEN :from AND :to")
+    fun getNewsFilterDates(search: String, isFavorite: Boolean, from: Date, to: Date): List<New>
 
 }
